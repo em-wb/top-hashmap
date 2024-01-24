@@ -4,7 +4,7 @@
 
 function hashMap() {
   let size = 16;
-  const buckets = Array.from({ length: size }, () => []);
+  let buckets = Array.from({ length: size }, () => []);
   const loadFactor = 0.75;
 
   const hash = (key) => {
@@ -43,8 +43,8 @@ function hashMap() {
     let count = 0;
     let current = buckets[i];
     while (current) {
-      if (!buckets[i].length === 0) {
-        count++;
+      if (current.length > 0) {
+        count += current.length;
       }
       i++;
       current = buckets[i];
@@ -70,10 +70,71 @@ function hashMap() {
     return null;
   };
 
-  return { set, get };
+  const has = (key) => {
+    const hashCode = hash(key);
+    const bucketIndex = hashCode % size;
+    let i = 0;
+    const current = buckets[bucketIndex][i];
+    while (current) {
+      if (current.key === key) {
+        return true;
+      }
+      i++;
+      current = buckets[bucketIndex][i];
+    }
+    return false;
+  };
+
+  const remove = (key) => {
+    const hashCode = hash(key);
+    const bucketIndex = hashCode % size;
+    let i = 0;
+    const current = buckets[bucketIndex][i];
+    while (current) {
+      if (current.key === key) {
+        buckets[bucketIndex].splice(i, 1);
+        return true;
+      }
+      i++;
+      current = buckets[bucketIndex][i];
+    }
+    return false;
+  };
+
+  const length = () => {
+    let i = 0;
+    let count = 0;
+    let current = buckets[i];
+    while (current) {
+      if (current.length > 0) {
+        count += current.length;
+      }
+      i++;
+      current = buckets[i];
+    }
+    return count;
+  };
+
+  const clear = () => {
+    let size = 16;
+    buckets = Array.from({ length: size }, () => []);
+    return true;
+  };
+
+  return { set, get, has, remove, length, clear };
 }
 
 const testMap = hashMap();
 testMap.set("Anna", 46);
 testMap.set("Jim", 23);
-console.log("get", testMap.get("Anna"), testMap.get("Jim"));
+console.log("get Anna", testMap.get("Anna")),
+  console.log("has Jim:", testMap.has("Jim"));
+console.log(
+  "remove Jim:",
+  testMap.remove("Jim"),
+  "has Jim:",
+  testMap.has("Jim")
+);
+console.log("length", testMap.length());
+console.log("clear", testMap.clear());
+console.log("length", testMap.length());
